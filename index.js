@@ -29,7 +29,7 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
-        const foodCollection = client.db("foodRestaurant").collection("foods")
+        const foodCollection = client.db("foodRestaurant").collection("foods");
 
         // ------------- Get the "foodCollection" data with this code below ------------
 
@@ -45,6 +45,30 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await foodCollection.findOne(query);
+            res.send(result)
+        })
+
+        // ----------- PurchasingCollection part ---------------
+
+        const purchasingCollection = client.db("foodRestaurant").collection("purchasing");
+
+        // ------------ Purchasing -----------
+
+        app.post('/purchasing', async (req, res) => {
+            const purchasing = req.body;
+            console.log(purchasing);
+            const result = await purchasingCollection.insertOne(purchasing)
+            res.send(result)
+        })
+
+        // ----------- Make the purchase api ------------
+
+        app.get('/purchasing', async (req, res) => {
+            let query = {};
+            if (req.query?.email) {
+                query = { email: req.query.email }
+            }
+            const result = await purchasingCollection.find(query).toArray()
             res.send(result)
         })
 
