@@ -27,7 +27,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         const foodCollection = client.db("foodRestaurant").collection("foods");
 
@@ -64,11 +64,37 @@ async function run() {
         // ----------- Make the purchase api ------------
 
         app.get('/purchasing', async (req, res) => {
+            console.log(req.query)
             let query = {};
             if (req.query?.email) {
                 query = { email: req.query.email }
             }
             const result = await purchasingCollection.find(query).toArray()
+            res.send(result)
+        })
+
+        // -------- Delete part ------------
+
+        app.delete('/purchasing/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await purchasingCollection.deleteOne(query);
+            res.send(result)
+        })
+
+        // --------- Update part -------------
+
+        app.patch('/purchasing/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const updatedPurchasing = req.body;
+            console.log(updatedPurchasing)
+            const updateDoc = {
+                $set: {
+                    status: updatedPurchasing.status
+                }
+            };
+            const result = await purchasingCollection.updateOne(filter, updateDoc)
             res.send(result)
         })
 
